@@ -6,16 +6,23 @@ from tqdm import tqdm
 from datetime import datetime
 
 class Processor:
-    def __init__(self, output_dir="nasa_power_data", database_file="district_database.csv", merged_file="merged_all_districts.csv", params_file=None, log_file="processor.log"):
+    def __init__(self, output_dir="nasa_power_data", database_file="district_database.csv",
+             merged_file="merged_all_districts.csv", params_file=None,
+             log_file="logs/processor.log"):
         self.output_dir = output_dir
         self.database_file = database_file
         self.merged_file = merged_file
         self.base_url = "https://power.larc.nasa.gov/api/temporal/daily/point"
         self.df_database = pd.read_csv(database_file)
+
+        # Setup log file
         self.log_file = log_file
+        os.makedirs(os.path.dirname(self.log_file), exist_ok=True)
+
+        # Ensure output directory exists
         os.makedirs(self.output_dir, exist_ok=True)
 
-        # Define default API parameters
+        # Default API parameters
         self.default_params = {
             "start": "20040101",  # YYYYMMDD
             "end": "20240801",
@@ -29,8 +36,9 @@ class Processor:
             "header": "true"
         }
 
-        # Load or set parameters
+        # Load parameters
         self.params = self.load_params(params_file) if params_file else self.default_params.copy()
+
         self.log("Processor initialized.")
 
     def log(self, message):
